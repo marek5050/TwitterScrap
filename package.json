@@ -1,0 +1,19 @@
+{
+  "name": "app-name",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "bootable": "0.2.x",
+    "bootable-environment": "0.2.x",
+    "connect-powered-by": "0.1.x",
+    "ejs": "0.8.x",
+    "express": "3.x.x",
+    "locomotive": "0.4.x",
+    "locomotive-mongoose": "^0.1.0",
+    "mongoose": "^3.8.9",
+    "twit": "^1.1.15"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
