@@ -10,6 +10,7 @@
     "express": "3.x.x",
     "locomotive": "0.4.x",
     "locomotive-mongoose": "^0.1.0",
+    "lodash": "^2.4.1",
     "mongoose": "^3.8.9",
     "twit": "^1.1.15"
   },

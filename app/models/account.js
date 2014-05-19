@@ -16,7 +16,24 @@ var AccountSchema = new Schema({
   name: {
     first: { type: String, required: true },
     last: { type: String, required: true }
-  }
+  },
+
+   id: Number,
+     id_str: String,
+     top_tweets:[String],
+     influence: Number,
+     stats: {
+      shares: {type: Number, default:0},
+      reshares: {type: Number, default:0},
+      likes: {type:Number, default:0},
+      followers: {type: Number, default:0},
+      following: {type: Number, default:0},
+     },
+     email: String,
+     facebook: String,
+     linkedin: String,
+     twitter: String,
+     aboutme: String,
 });
 
 AccountSchema.virtual('password').get(function () {
