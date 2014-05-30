@@ -7,9 +7,19 @@
 // information.
 module.exports = function routes() {
 
-  this.root('pages#main');
-
+  this.root('twits#showme');
   this.resource('twit');
-  this.match('twit#init');
+  this.match('entity/:entity.:format?',"entities#showme");
+  this.match('users/list.:format?',"users#list");
+  this.match('users/sentiment',"users#sentiment");
+
+
+
+   // this.resource('entity',function(){
+   // 	   this.match("show", "entity#show");
+   // });
+   // // this.resource('entity', function(){
+   // 	this.match('account/:who.:format?', 'entity#show',{via:'get'});
+   // });
 
 }

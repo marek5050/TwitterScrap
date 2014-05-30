@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title><%= title %></title>
+    <script src="/js/knockout-3.1.0.js"></script>
+    <link rel="stylesheet" href="/stylesheets/screen.css" />
+    <script src="/js/lodash.js"></script>
+ </head>
+  <body>
+    <h2 data-bind='entity_primary'>
+      <div data-bind="foreach: {data:users, as: 'user' }">
+       <span >
+          <span data-bind='text:user.name'></span>: <span data-bind="text:user.mention_count"></span>
+          <span data-bind='text:user.followers'></span>
+       </span>
+      </div>
+     </h2>
+  
+
+   <p id='p'></p>
+
+
+<!-- Begin entities -->
+<div id='entities'>
+<h3> Related Entities: </h3>
+<div data-bind="foreach: entities">
+
+  <strong data-bind="text: name"> </strong> 
+  <span data-bind="text: count"> </span> 
+
+<!-- Begin of related hashs -->
+  <h4> Most frequent hashtags </h4>
+  <div id='related'>
+    <div data-bind="foreach: {data: related, as: 'item'}">
+        <strong data-bind='text: item[0]'></strong>
+        <span data-bind='text: item[1]'></span>
+    </div>
+  </div> 
+<!-- End of related hashs -->
+
+
+
+ <!-- Begin influential users  -->
+ <div id='user_influence'>
+    <h4> Most Influential Users </h4>
+    <div data-bind="foreach: {data: users, as: 'item'} ">
+        <strong data-bind='text: item[0]'></strong>
+        <span data-bind='text: item[1]'></span>
+    </div>
+  </div> 
+  <!-- End of influential users-->
+ </div>
+</div>
+<!-- End of entities -->
+
+
+
+
+ <script src="/js/jquery-1.11.1.min.js"></script> 
+ <script src="/js/bootstrap.min.js"></script>
+
+<script>
+
+// function relationModel(name, count){
+//   var self = this;
+//   self.name = name;
+//   self.count = count;
+// }
+
+function UserModel(name,mention_count){
+  var self = this;
+  self.name = ko.observable(name);
+  self.mention_count= ko.observable(mention_count);
+  self.followers = ko.observable();
+  self.friends = ko.observable();
+  self.website = ko.observable();
+  self.email = ko.observable();
+
+
+}
+
+function HashTagModel(name,count,related,users){
+  var self = this;
+  self.name = ko.observable(name);
+  self.count = count;
+  self.related = ko.observableArray(related);
+  self.users = ko.observableArray(users);
+
+  self.addRelated = function(related){
+    _.map(related, function(item){self.related.push(item)});
+  }
+
+  self.addUsers = function(user){
+    _.map(user, function(item){self.users.push(item)});
+  }
+}
+
+function RelationViewModel()
+{
+  var self = this;
+  self.primary = '<%=entity%>';
+  self.primary_id = '<%=entity_id%>';
+  self.users = ko.observableArray();
+
+  self.entities = ko.observableArray();
+  self.tempdata=[];
+
+  // self.data= ko.observable();
+  // self.spinoff = ko.computed(function(){
+  //     self.getData();
+  // })
+
+ /* Initiate Object and Related */ 
+var users = '<%=entity_users%>';
+var usersParse = users.split(',');
+var usersCounts = [];
+var userItems = _.filter(usersParse,
+               function(item)
+                 {
+                    if(item.indexOf('@')==0) return 1;
+                    else usersCounts.push(item);
+                });
+
+console.log("Counts: ", usersCounts, "\n Items: ", userItems);
+var userPairs = _.zip(userItems,usersCounts);
+console.log("userPairs: ", userPairs );
+_.map(userPairs, function(item){
+  self.users.push(new UserModel(item[0],item[1]));
+});
+
+
+
+var relevant = '<%=relevant%>';
+var relevantParse = relevant.split(',');
+var  counts= [];
+var items = _.filter(relevantParse, function(item){if(item.indexOf('#')==0) return 1; else counts.push(item)});
+console.log("Counts: ", counts, "\n Items: ", items);
+var pairs = _.zip(items,counts);
+console.log("Pairs: ", pairs);
+_.map(pairs, function(item){
+  self.tempdata[item[0]] = {'name': item[0],'count': item[1]};
+});
+// console.log("Tempdata: ", self.tempdata);
+
+
+/* Download all related information and complete initialization */
+
+$.getJSON("/users/list.json",{'items':"<%=relevant%>"},function(data){
+  if(!data){ console.log("Failed to find data"); return;}
+
+  console.log("Received data ", data);
+  var result = data.result;
+
+  $.map(result, function(item){
+    console.log("Item:",item.name,"Count: ",self.tempdata[item.name].count);
+    self.entities.push(new HashTagModel(item.name, self.tempdata[item.name].count,item.related,item.users));
+  })
+ })
+}
+
+ko.applyBindings(new RelationViewModel());
+
+</script>
+
+  </body>
+</html>
